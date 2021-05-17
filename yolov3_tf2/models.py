@@ -1,3 +1,5 @@
+#Reference from https://github.com/nimadorostkar/human-detection
+
 from absl import flags
 from absl.flags import FLAGS
 import numpy as np

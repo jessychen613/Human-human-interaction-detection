@@ -1,3 +1,5 @@
+#Reference from https://github.com/nimadorostkar/human-detection
+
 from absl import logging
 import numpy as np
 import tensorflow as tf
