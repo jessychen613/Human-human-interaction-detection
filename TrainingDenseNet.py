@@ -1,10 +1,12 @@
 # TensorFlow and TF-Hub modules.
 from absl import logging
 
+
 import tensorflow as tf
 #import tensorflow.compat.v1 as tf
 #tf.disable_v2_behavior()
 import tensorflow_hub as hub
+import matplotlib.pyplot as plt
 #from tensorflow_docs.vis import embed
 
 # Some modules to help with reading the UCF101 dataset.
@@ -35,6 +37,8 @@ from keras.callbacks import LearningRateScheduler, TensorBoard, ModelCheckpoint
 from keras.models import Model
 from keras import optimizers, regularizers
 
+#Adjust OS memory allocation
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 #print(tfds.list_builders())
 
 config = tfds.download.DownloadConfig(verify_ssl=False)
@@ -43,13 +47,16 @@ ds = tfds.load('ucf101', split='train', shuffle_files=True, data_dir='./data/ten
 assert isinstance(ds, tf.data.Dataset)
 #print(ds)
 
-ds_train = ds.take(100)  # Only take a single example
-ds_test = ds.take(50)  # Only take a single example
-#print("sample1", ds)
+ds_train = ds.take(10)  # Only take a single example
+ds_test = ds.take(1)  # Only take a single example
+#print("ds_train shape", ds_train.shape)
 
 for example in ds_train:  # example is `{'image': tf.Tensor, 'label': tf.Tensor}`
-  print(list(example.keys()))
+#  print(list(example.keys()))
   video_train = example["video"].numpy()
+  print(type(video_train))
+#  plt.imshow(image(video_train)) #np.array(inputs).reshape(28,28) maybe needed based on the compiler
+#  plt.show()
 #  label_train = example["label"]
   label_train = np.zeros((video_train.shape[0],1))
   label_train = label_train + example["label"]
@@ -57,6 +64,12 @@ for example in ds_train:  # example is `{'image': tf.Tensor, 'label': tf.Tensor}
 #  print("label", label_train)
 #  print("video shape", video_train.shape)
 #  print("label shape", label_train.shape)
+
+i=0
+for xtest in ds:
+   i = i+ 1
+
+print("total items in ds", i)
 
 for example in ds_test:  # example is `{'image': tf.Tensor, 'label': tf.Tensor}`
   print(list(example.keys()))
@@ -68,6 +81,7 @@ for example in ds_test:  # example is `{'image': tf.Tensor, 'label': tf.Tensor}`
 #  print("video shape", video_train.shape)
 #  print("label shape", label_train.shape)
 
+
 growth_rate        = 12 
 depth              = 100
 compression        = 0.5
@@ -75,9 +89,11 @@ compression        = 0.5
 #img_rows, img_cols = 32, 32
 img_rows, img_cols = 256, 256
 img_channels       = 3
-num_classes        = 10
+#num_classes        = 10
+num_classes        = 104
 #num_classes        = 2
-batch_size         = 64         # 64 or 32 or other
+#batch_size         = 64         # 64 or 32 or other
+batch_size         = 2         # 64 or 32 or other
 #epochs             = 300
 epochs             = 1
 #iterations         = 782    
@@ -190,8 +206,8 @@ print("x_train1 after process", x_train1)
 
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 #print("y_train shape", y_train.shape)
-print("x_train[0]", x_train[0])
-print("y_train[0]", y_train[0])
+#print("x_train[0]", x_train[0])
+#print("y_train[0]", y_train[0])
 #print("y_train", y_train)
 
 y_train = keras.utils.to_categorical(y_train, num_classes)
