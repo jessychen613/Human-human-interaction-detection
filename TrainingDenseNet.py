@@ -36,66 +36,30 @@ from keras.layers.merge import Concatenate
 from keras.callbacks import LearningRateScheduler, TensorBoard, ModelCheckpoint
 from keras.models import Model
 from keras import optimizers, regularizers
+from ReadTFRecord import load_dataset
 
 #Adjust OS memory allocation
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 #print(tfds.list_builders())
+filepath = './data/dataset/dataset1/'
 
-config = tfds.download.DownloadConfig(verify_ssl=False)
-ds = tfds.load('ucf101', split='train', shuffle_files=True, data_dir='./data/tensorflow_datasets', download_and_prepare_kwargs={"download_config" : config})
-#ds = tfds.load('ucf101', split='train', shuffle_files=True, data_dir='./data/tensorflow_datasets', download=False)
-assert isinstance(ds, tf.data.Dataset)
-#print(ds)
-
-ds_train = ds.take(10)  # Only take a single example
-ds_test = ds.take(1)  # Only take a single example
-#print("ds_train shape", ds_train.shape)
-
-for example in ds_train:  # example is `{'image': tf.Tensor, 'label': tf.Tensor}`
-#  print(list(example.keys()))
-  video_train = example["video"].numpy()
-  print(type(video_train))
-#  plt.imshow(image(video_train)) #np.array(inputs).reshape(28,28) maybe needed based on the compiler
-#  plt.show()
-#  label_train = example["label"]
-  label_train = np.zeros((video_train.shape[0],1))
-  label_train = label_train + example["label"]
-#  print("video", video_train)
-#  print("label", label_train)
-#  print("video shape", video_train.shape)
-#  print("label shape", label_train.shape)
-
-i=0
-for xtest in ds:
-   i = i+ 1
-
-print("total items in ds", i)
-
-for example in ds_test:  # example is `{'image': tf.Tensor, 'label': tf.Tensor}`
-  print(list(example.keys()))
-  video_test = example["video"].numpy()
-  label_test = np.zeros((video_test.shape[0],1))
-  label_test = label_test + example["label"]
-#  print("video", video_test)
-#  print("label", label_test)
-#  print("video shape", video_train.shape)
-#  print("label shape", label_train.shape)
-
+video_train, label_train, video_test, label_test = load_dataset(filepath)
 
 growth_rate        = 12 
 depth              = 100
 compression        = 0.5
 
 #img_rows, img_cols = 32, 32
-img_rows, img_cols = 256, 256
+#img_rows, img_cols = 256, 256
+img_rows, img_cols = 240, 320
 img_channels       = 3
 #num_classes        = 10
-num_classes        = 104
-#num_classes        = 2
+#num_classes        = 104
+num_classes        = 2
 #batch_size         = 64         # 64 or 32 or other
-batch_size         = 2         # 64 or 32 or other
+batch_size         = 4         # 64 or 32 or other
 #epochs             = 300
-epochs             = 1
+epochs             = 120
 #iterations         = 782    
 iterations         = 2      
 weight_decay       = 1e-4
@@ -198,34 +162,41 @@ print("y_train1 shape", y_train1.shape)
 print("x_test1 shape", x_test1.shape)
 print("y_test1 shape", y_test1.shape)
 
-for i in range(3):
-    x_train1[:,:,:,i] = x_train1[:,:,:,i] / 255.0
-    x_test1[:,:,:,i] = x_test1[:,:,:,i] / 255.0
+#for i in range(3):
+#    x_train1[i,:,:,:] = x_train1[i,:,:,:] / 255.0
+#    x_test1[i,:,:,:] = x_test1[i,:,:,:] / 255.0
 
-print("x_train1 after process", x_train1)
+print("num_classes", num_classes)
+y_train1 = keras.utils.to_categorical(y_train1, num_classes)
+y_test1  = keras.utils.to_categorical(y_test1, num_classes)
+#x_train1 = x_train1.astype('float32')
+#x_test1  = x_test1.astype('float32')
 
-(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+print("y_train1 shape after to_categorical", y_train1.shape)
+print("y_test1 shape after to_categorical", y_test1.shape)
+
+#(x_train, y_train), (x_test, y_test) = cifar10.load_data()
 #print("y_train shape", y_train.shape)
 #print("x_train[0]", x_train[0])
 #print("y_train[0]", y_train[0])
 #print("y_train", y_train)
 
-y_train = keras.utils.to_categorical(y_train, num_classes)
-y_test  = keras.utils.to_categorical(y_test, num_classes)
-x_train = x_train.astype('float32')
-x_test  = x_test.astype('float32')
+#y_train = keras.utils.to_categorical(y_train, num_classes)
+#y_test  = keras.utils.to_categorical(y_test, num_classes)
+#x_train = x_train.astype('float32')
+#x_test  = x_test.astype('float32')
 
-print("x_train shape", x_train.shape)
-print("y_train shape", y_train.shape)
+#print("x_train shape", x_train.shape)
+#print("y_train shape", y_train.shape)
     
     # - mean / std
-for i in range(3):
-    x_train[:,:,:,i] = (x_train[:,:,:,i] - mean[i]) / std[i]
-    x_test[:,:,:,i] = (x_test[:,:,:,i] - mean[i]) / std[i]
+#for i in range(3):
+#    x_train[:,:,:,i] = (x_train[:,:,:,i] - mean[i]) / std[i]
+#    x_test[:,:,:,i] = (x_test[:,:,:,i] - mean[i]) / std[i]
 
 #print("x_train[0] after processing", x_train[0])
 
-    # build network
+# build network
 img_input = Input(shape=(img_rows,img_cols,img_channels))
 output    = densenet(img_input,num_classes)
 model     = Model(img_input, output)
@@ -238,9 +209,11 @@ print(model.summary())
     # plot_model(model, show_shapes=True, to_file='model.png')
 
     # set optimizer
-sgd = optimizers.SGD(lr=.1, momentum=0.9, nesterov=True)
+#sgd = optimizers.SGD(lr=.1, momentum=0.9, nesterov=True)
 #model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
-model.compile(loss='sparse_categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+#model.compile(loss='sparse_categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+adam = optimizers.Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-07, amsgrad=False)
+model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
 
     # set callback
 tb_cb     = TensorBoard(log_dir='./densenet/', histogram_freq=0)
@@ -252,9 +225,9 @@ cbks      = [change_lr,tb_cb,ckpt]
 print('Using real-time data augmentation.')
 datagen   = ImageDataGenerator(horizontal_flip=True,width_shift_range=0.125,height_shift_range=0.125,fill_mode='constant',cval=0.)
 
-datagen.fit(x_train)
+datagen.fit(x_train1)
 
-    # start training
+# start training
 #model.fit_generator(datagen.flow(x_train, y_train,batch_size=batch_size), steps_per_epoch=iterations, epochs=epochs, callbacks=cbks,validation_data=(x_test, y_test))
 model.fit_generator(datagen.flow(x_train1, y_train1,batch_size=batch_size), steps_per_epoch=iterations, epochs=epochs, callbacks=cbks,validation_data=(x_test1, y_test1))
 model.save('densenet.h5')
