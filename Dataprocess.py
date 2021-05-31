@@ -15,26 +15,33 @@ shuffle_data = True # shuffle the addresses before saving
 train_path = './data/dataset/video/*.avi'
 train_path2 = './data/dataset/video1/*.avi'
 train_path3 = './data/dataset/video3/*.avi'
+train_path4 = './data/dataset/video4/*.avi'
+train_test = './data/dataset/videotest/*.avi'
 video_path = './data/dataset/video/'
 video_path2 = './data/dataset/video1/'
 video_path3 = './data/dataset/video3/'
+video_path4 = './data/dataset/video4/'
+video_pathtest = './data/dataset/videotest/'
 datasetpath = './data/dataset/dataset1'
+datasetpath4 = './data/dataset/dataset4'
+datasettest = './data/dataset/datasettest'
 
 n_videos_in_record=201
 color_depth="uint8"
 num_classes=2
 
 # read addresses and labels from the 'train' folder
-addrs = glob.glob(train_path)
+addrs = glob.glob(train_test)
 #addrs = glob.glob(train_path2)
 #addrs = glob.glob(train_path3)
 labels = [1 if 'int' in addr else 0 for addr in addrs] # 0 = non-interaction, 1 = interaction
 
 print("labels", labels)
 
-data = convert_videos(video_path, datasetpath)
+#data = convert_videos(video_path4, datasettest)
 #data = convert_videos(video_path2, datasetpath)
 #data = convert_videos(video_path3, datasetpath)
+data = convert_videos(video_pathtest, datasettest)
 
 #print(data)
 print("data.shape", data.shape)
@@ -82,6 +89,6 @@ for i, batch in enumerate(addrs):
     print(addrs[i].shape)
  #   labelb=keras.utils.to_categorical(labels[i], num_classes)
  #   print(labelb, num_classes)
-    save_numpy_to_tfrecords(addrs[i], labels[i], datasetpath, 'batch_',
+    save_numpy_to_tfrecords(addrs[i], labels[i], datasettest, 'batch_',
                            n_videos_in_record, i + 1, num_video,
                            color_depth=color_depth)

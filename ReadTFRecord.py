@@ -5,14 +5,21 @@ import numpy as np
 from random import shuffle
 from tensorflow.python.platform import gfile
 import os
+import matplotlib.pyplot as plt
 
 filepath = './data/dataset/dataset1/'
+filepathtest = './data/dataset/datasettest/'
 datasetpath1 = './data/dataset/dataset/batch_1_of_2.tfrecords'
 file_suffix = '*.tfrecords'
 
-HEIGHT = 240
-WIDTH = 320
+#HEIGHT = 240
+#WIDTH = 320
+HEIGHT = 192
+WIDTH = 256
 CHANNEL = 3
+
+new_w = 224
+new_h = 224
 
 #def read_and_decode(filename_queue):
 
@@ -28,12 +35,14 @@ def _parse_image_function(example_proto):
 
 image_feature_description = {
         'video': tf.io.FixedLenFeature([], tf.string),
-        'height': tf.io.FixedLenFeature([], tf.int64),
-        'width': tf.io.FixedLenFeature([], tf.int64),
-        'channel': tf.io.FixedLenFeature([], tf.int64),
-        'num_images': tf.io.FixedLenFeature([], tf.int64),
+#        'height': tf.io.FixedLenFeature([], tf.int64),
+#        'width': tf.io.FixedLenFeature([], tf.int64),
+#        'channel': tf.io.FixedLenFeature([], tf.int64),
+#        'num_images': tf.io.FixedLenFeature([], tf.int64),
         'label': tf.io.FixedLenFeature([], tf.int64),
 }
+
+
 
 def load_dataset(filepath):
 
@@ -62,13 +71,19 @@ def load_dataset(filepath):
 
         i=num_frame
         for image_features in parsed_image_dataset:
-            num_images = image_features['num_images'].numpy()
-            height = image_features['height'].numpy()
-            width = image_features['width'].numpy()
-            channel = image_features['channel'].numpy()
+#            num_images = image_features['num_images'].numpy()
+#            height = image_features['height'].numpy()
+#            width = image_features['width'].numpy()
+#            channel = image_features['channel'].numpy()
 #           print(num_images,height,width,channel)
             video = tf.io.decode_raw(image_features['video'], tf.uint8)
             video = tf.reshape(video, [HEIGHT, WIDTH, CHANNEL])
+#            plt.imshow(video)
+#            plt.show()
+#            video = video[:, 20:280, :]
+#            plt.imshow(video)
+#            plt.show()
+#            print("videotest", video.shape)
 #            print("before video_train.append")
 #            tf.image.convert_image_dtype(video, dtype=tf.float32)
             video_train.append(tf.cast(video, tf.float32) / 255.0)
@@ -109,7 +124,7 @@ def load_dataset(filepath):
 
     return train_addrs, train_labels, test_addrs, test_labels
 
-#video_train, label_train, video_test, label_test = load_dataset(filepath)
+#video_train, label_train, video_test, label_test = load_dataset(filepathtest)
 #print("video_train shape",video_train.shape)
 #print("video_train",video_train)
 #print("label_train shape",label_train.shape)

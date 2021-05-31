@@ -41,7 +41,7 @@ from ReadTFRecord import load_dataset
 #Adjust OS memory allocation
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 #print(tfds.list_builders())
-filepath = './data/dataset/dataset1/'
+filepath = './data/dataset/dataset4/'
 
 video_train, label_train, video_test, label_test = load_dataset(filepath)
 
@@ -51,15 +51,16 @@ compression        = 0.5
 
 #img_rows, img_cols = 32, 32
 #img_rows, img_cols = 256, 256
-img_rows, img_cols = 240, 320
+img_rows, img_cols = 192, 256
+#img_rows, img_cols = 240, 280
 img_channels       = 3
 #num_classes        = 10
 #num_classes        = 104
 num_classes        = 2
 #batch_size         = 64         # 64 or 32 or other
-batch_size         = 4         # 64 or 32 or other
+batch_size         = 8         # 64 or 32 or other
 #epochs             = 300
-epochs             = 120
+epochs             = 50
 #iterations         = 782    
 iterations         = 2      
 weight_decay       = 1e-4
@@ -162,11 +163,12 @@ print("y_train1 shape", y_train1.shape)
 print("x_test1 shape", x_test1.shape)
 print("y_test1 shape", y_test1.shape)
 
-#for i in range(3):
-#    x_train1[i,:,:,:] = x_train1[i,:,:,:] / 255.0
-#    x_test1[i,:,:,:] = x_test1[i,:,:,:] / 255.0
+#for i in range(10):  
+#    plt.imshow(x_train1[i])
+#    plt.show()
+#    print(y_train1[i])
 
-print("num_classes", num_classes)
+#print("num_classes", num_classes)
 y_train1 = keras.utils.to_categorical(y_train1, num_classes)
 y_test1  = keras.utils.to_categorical(y_test1, num_classes)
 #x_train1 = x_train1.astype('float32')
@@ -200,8 +202,10 @@ print("y_test1 shape after to_categorical", y_test1.shape)
 img_input = Input(shape=(img_rows,img_cols,img_channels))
 output    = densenet(img_input,num_classes)
 model     = Model(img_input, output)
-    
-    # model.load_weights('ckpt.h5')
+
+print("img_input.shape",img_input.shape)
+
+model.load_weights('ckpt.h5')
 
 print(model.summary())
 
