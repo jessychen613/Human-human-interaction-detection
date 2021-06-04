@@ -5,6 +5,7 @@ from PIL import Image
 import numpy as np
 import os.path
 from ReadTFRecord import load_dataset
+from ReadTFRecord import load_datasetforpredict
 from keras import models
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -21,9 +22,10 @@ model.summary()
 
 model.load_weights('ckpt.h5')
 
-data, labels, testvideo, testlabel = load_dataset(datasetpath1)
+#data, labels, testvideo, testlabel = load_dataset(datasetpath1)
+data, labels = load_datasetforpredict(datasetpath1)
 print("label", labels)
-print("data", data)
+#print("data", data)
 
 samples_to_predict = []
 
@@ -38,6 +40,8 @@ samples_to_predict = []
 
 #predict2 = model.predict(np.array(data))
 predictclass = []
+zeronum = 0
+onenum = 0
 
 for example in data:
 
@@ -55,8 +59,15 @@ for example in data:
 #    print("predict2",predict2)
     classes = np.argmax(predict2, axis = 1)
 #    print("classes",classes)
+
+    if (classes[0]==0):
+        zeronum = zeronum + 1
+    if (classes[0]==1):
+        onenum = onenum + 1
     predictclass.append(classes[0])
 
 #    print("predict2",predict2)
 
 print("predictclass", predictclass)
+print("zeronum", zeronum)
+print("onenum", onenum)
